@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 import datetime
 from src.weather_api.database.database import Database
 
@@ -21,6 +21,19 @@ def health_check():
         'service': 'weather-api',
         'timestamp': datetime.datetime.now().isoformat()
     })
+
+
+@weather_bp.route('/endpoints')
+def list_endpoints():
+    """List all available API endpoints."""
+    endpoints = []
+    for rule in current_app.url_map.iter_rules():
+        if rule.endpoint != 'static':
+            endpoints.append({
+                'endpoint': rule.rule,
+                'methods': list(rule.methods - {'HEAD', 'OPTIONS'})
+            })
+    return jsonify({'endpoints': endpoints})
 
 
 @weather_bp.route('/forecast/highs')
