@@ -54,3 +54,23 @@ class Database:
         for row in self.cur.fetchall():
             results.append(dict(zip(columns, row)))
         return results
+
+    def get_observed_highs(self, station_id, service='CLI'):
+        """
+        Get observed daily high temperatures for a station.
+
+        Args:
+            station_id: Station ID (e.g., 'KNYC')
+            service: Data service (default: 'CLI')
+
+        Returns:
+            List of dictionaries with date and value
+        """
+        query = self.read_query('get_observed_highs.sql')
+
+        self.cur.execute(query, (service, station_id))
+        columns = [desc[0] for desc in self.cur.description]
+        results = []
+        for row in self.cur.fetchall():
+            results.append(dict(zip(columns, row)))
+        return results

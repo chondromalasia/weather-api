@@ -78,3 +78,41 @@ def forecast_highs():
         return jsonify({'error': f'Query file not found: {str(e)}'}), 500
     except Exception as e:
         return jsonify({'error': f'Database error: {str(e)}'}), 500
+
+
+@weather_bp.route('/observations/highs')
+def observed_highs():
+    """
+    Get observed daily high temperatures.
+
+    Query Parameters:
+        station_id (required): Station ID (e.g., 'KNYC')
+        service (optional): Data service (default: 'CLI')
+
+    Returns:
+        JSON response with observed highs per day
+    """
+    station_id = request.args.get('station_id')
+    service = request.args.get('service', 'CLI')
+
+    if not station_id:
+        return jsonify({'error': 'Missing required parameter: station_id'}), 400
+
+    try:
+        db = Database()
+        results = db.get_observed_highs(station_id, service)
+
+        # Convert date objects to strings for JSON serialization
+        for result in results:
+            if 'date' in result and result['date']:
+                result['date'] = result['date'].isoformat()
+
+        return jsonify({
+            'station_id': station_id,
+            'service': service,
+            'observed_highs': results
+        })
+    except AttributeError as e:
+        return jsonify({'error': f'Query file not found: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
