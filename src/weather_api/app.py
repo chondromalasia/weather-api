@@ -1,11 +1,13 @@
 from flask import Flask
 from .api.weather import weather_bp
+from .api.kalshi import kalshi_bp
 
 
 def create_app():
     app = Flask(__name__)
 
     app.register_blueprint(weather_bp)
+    app.register_blueprint(kalshi_bp)
 
     return app
 

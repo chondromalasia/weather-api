@@ -1,0 +1,5 @@
+kalshi:
+  base_url: "https://api.elections.kalshi.com"
+  # API credentials are loaded from environment variables:
+  # KALSHI_API_KEY_ID - Your Kalshi API key ID
+  # KALSHI_PRIVATE_KEY_PATH - Path to your private key file
