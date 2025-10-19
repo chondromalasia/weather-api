@@ -39,8 +39,8 @@ jobs:
     
     - name: Test Flask application
       run: |
-        python -c "import app; print('Flask app imports successfully')"
-        python -c "from app import app; app.test_client().get('/'); print('Flask app runs successfully')"
+        python -c "from src.weather_api.app import create_app; print('Flask app imports successfully')"
+        python -c "from src.weather_api.app import create_app; app = create_app(); app.test_client().get('/'); print('Flask app runs successfully')"
 
   build-and-push:
     needs: test
