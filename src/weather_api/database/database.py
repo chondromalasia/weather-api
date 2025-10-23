@@ -74,3 +74,35 @@ class Database:
         for row in self.cur.fetchall():
             results.append(dict(zip(columns, row)))
         return results
+
+    def get_distinct_forecast_providers(self):
+        """
+        Get distinct list of weather forecast providers.
+
+        Returns:
+            List of dictionaries with provider names
+        """
+        query = self.read_query('get_distinct_forecast_providers.sql')
+
+        self.cur.execute(query)
+        columns = [desc[0] for desc in self.cur.description]
+        results = []
+        for row in self.cur.fetchall():
+            results.append(dict(zip(columns, row)))
+        return results
+
+    def get_distinct_forecast_locations(self):
+        """
+        Get distinct list of forecast locations.
+
+        Returns:
+            List of dictionaries with location codes
+        """
+        query = self.read_query('get_distinct_forecast_locations.sql')
+
+        self.cur.execute(query)
+        columns = [desc[0] for desc in self.cur.description]
+        results = []
+        for row in self.cur.fetchall():
+            results.append(dict(zip(columns, row)))
+        return results

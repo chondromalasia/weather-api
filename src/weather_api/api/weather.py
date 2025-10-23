@@ -116,3 +116,45 @@ def observed_highs():
         return jsonify({'error': f'Query file not found: {str(e)}'}), 500
     except Exception as e:
         return jsonify({'error': f'Database error: {str(e)}'}), 500
+
+
+@weather_bp.route('/forecast/providers')
+def forecast_providers():
+    """
+    Get distinct list of weather forecast providers.
+
+    Returns:
+        JSON response with list of provider names
+    """
+    try:
+        db = Database()
+        results = db.get_distinct_forecast_providers()
+
+        return jsonify({
+            'providers': results
+        })
+    except AttributeError as e:
+        return jsonify({'error': f'Query file not found: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
+
+
+@weather_bp.route('/forecast/locations')
+def forecast_locations():
+    """
+    Get distinct list of forecast locations.
+
+    Returns:
+        JSON response with list of location codes
+    """
+    try:
+        db = Database()
+        results = db.get_distinct_forecast_locations()
+
+        return jsonify({
+            'locations': results
+        })
+    except AttributeError as e:
+        return jsonify({'error': f'Query file not found: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
