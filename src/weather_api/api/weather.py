@@ -118,6 +118,44 @@ def observed_highs():
         return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 
+@weather_bp.route('/observations/latest')
+def most_recent_observation():
+    """
+    Get the date of the most recent observation for a station.
+
+    Query Parameters:
+        station_id (required): Station ID (e.g., 'KMIA')
+        service (optional): Data service (default: 'CLI')
+
+    Returns:
+        JSON response with the most recent observation timestamp
+    """
+    station_id = request.args.get('station_id')
+    service = request.args.get('service', 'CLI')
+
+    if not station_id:
+        return jsonify({'error': 'Missing required parameter: station_id'}), 400
+
+    try:
+        db = Database()
+        results = db.get_most_recent_observation(station_id, service)
+
+        # Convert timestamp to string for JSON serialization
+        for result in results:
+            if 'most_recent_observation' in result and result['most_recent_observation']:
+                result['most_recent_observation'] = result['most_recent_observation'].isoformat()
+
+        return jsonify({
+            'station_id': station_id,
+            'service': service,
+            'most_recent_observation': results[0]['most_recent_observation'] if results and results[0]['most_recent_observation'] else None
+        })
+    except AttributeError as e:
+        return jsonify({'error': f'Query file not found: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
+
+
 @weather_bp.route('/forecast/providers')
 def forecast_providers():
     """

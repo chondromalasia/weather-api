@@ -75,6 +75,26 @@ class Database:
             results.append(dict(zip(columns, row)))
         return results
 
+    def get_most_recent_observation(self, station_id, service='CLI'):
+        """
+        Get the date of the most recent observation for a station.
+
+        Args:
+            station_id: Station ID (e.g., 'KMIA')
+            service: Data service (default: 'CLI')
+
+        Returns:
+            List of dictionaries with most_recent_observation timestamp
+        """
+        query = self.read_query('get_most_recent_observation.sql')
+
+        self.cur.execute(query, (station_id, service))
+        columns = [desc[0] for desc in self.cur.description]
+        results = []
+        for row in self.cur.fetchall():
+            results.append(dict(zip(columns, row)))
+        return results
+
     def get_distinct_forecast_providers(self):
         """
         Get distinct list of weather forecast providers.
