@@ -95,6 +95,26 @@ class Database:
             results.append(dict(zip(columns, row)))
         return results
 
+    def get_max_temperature_observations(self, station_id, service='CLI'):
+        """
+        Get all maximum temperature observations for a station.
+
+        Args:
+            station_id: Station ID (e.g., 'KMIA')
+            service: Data service (default: 'CLI')
+
+        Returns:
+            List of dictionaries with all observation fields, ordered by timestamp DESC
+        """
+        query = self.read_query('get_max_temperature_observations.sql')
+
+        self.cur.execute(query, (service, station_id))
+        columns = [desc[0] for desc in self.cur.description]
+        results = []
+        for row in self.cur.fetchall():
+            results.append(dict(zip(columns, row)))
+        return results
+
     def get_distinct_forecast_providers(self):
         """
         Get distinct list of weather forecast providers.
