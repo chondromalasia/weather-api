@@ -55,20 +55,24 @@ class Database:
             results.append(dict(zip(columns, row)))
         return results
 
-    def get_observed_highs(self, station_id, service='CLI'):
+    def get_observed_highs(self, station_id, measurement_type='temperature', observation_type='max', service='CLI', start=None, end=None):
         """
-        Get observed daily high temperatures for a station.
+        Get observed measurements for a station.
 
         Args:
             station_id: Station ID (e.g., 'KNYC')
+            measurement_type: Type of measurement (default: 'temperature')
+            observation_type: Type of observation (default: 'max')
             service: Data service (default: 'CLI')
+            start: Optional start datetime
+            end: Optional end datetime
 
         Returns:
-            List of dictionaries with date and value
+            List of dictionaries with all observation fields
         """
         query = self.read_query('get_observed_highs.sql')
 
-        self.cur.execute(query, (service, station_id))
+        self.cur.execute(query, (measurement_type, observation_type, service, station_id, start, start, end, end))
         columns = [desc[0] for desc in self.cur.description]
         results = []
         for row in self.cur.fetchall():
@@ -89,26 +93,6 @@ class Database:
         query = self.read_query('get_most_recent_observation.sql')
 
         self.cur.execute(query, (station_id, service))
-        columns = [desc[0] for desc in self.cur.description]
-        results = []
-        for row in self.cur.fetchall():
-            results.append(dict(zip(columns, row)))
-        return results
-
-    def get_max_temperature_observations(self, station_id, service='CLI'):
-        """
-        Get all maximum temperature observations for a station.
-
-        Args:
-            station_id: Station ID (e.g., 'KMIA')
-            service: Data service (default: 'CLI')
-
-        Returns:
-            List of dictionaries with all observation fields, ordered by timestamp DESC
-        """
-        query = self.read_query('get_max_temperature_observations.sql')
-
-        self.cur.execute(query, (service, station_id))
         columns = [desc[0] for desc in self.cur.description]
         results = []
         for row in self.cur.fetchall():

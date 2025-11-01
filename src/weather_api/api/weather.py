@@ -83,34 +83,49 @@ def forecast_highs():
 @weather_bp.route('/observations/highs')
 def observed_highs():
     """
-    Get observed daily high temperatures.
+    Get observed measurements for a station.
 
     Query Parameters:
         station_id (required): Station ID (e.g., 'KNYC')
+        measurement_type (optional): Type of measurement (default: 'temperature')
+        observation_type (optional): Type of observation (default: 'max')
         service (optional): Data service (default: 'CLI')
+        start (optional): Start datetime (ISO format)
+        end (optional): End datetime (ISO format)
 
     Returns:
-        JSON response with observed highs per day
+        JSON response with all observation fields
     """
     station_id = request.args.get('station_id')
+    measurement_type = request.args.get('measurement_type', 'temperature')
+    observation_type = request.args.get('observation_type', 'max')
     service = request.args.get('service', 'CLI')
+    start = request.args.get('start')
+    end = request.args.get('end')
 
     if not station_id:
         return jsonify({'error': 'Missing required parameter: station_id'}), 400
 
     try:
         db = Database()
-        results = db.get_observed_highs(station_id, service)
+        results = db.get_observed_highs(station_id, measurement_type, observation_type, service, start, end)
 
-        # Convert date objects to strings for JSON serialization
+        # Convert date and timestamp objects to strings for JSON serialization
         for result in results:
+            if 'timestamp' in result and result['timestamp']:
+                result['timestamp'] = result['timestamp'].isoformat()
             if 'date' in result and result['date']:
                 result['date'] = result['date'].isoformat()
 
         return jsonify({
             'station_id': station_id,
+            'measurement_type': measurement_type,
+            'observation_type': observation_type,
             'service': service,
-            'observed_highs': results
+            'start': start,
+            'end': end,
+            'count': len(results),
+            'observations': results
         })
     except AttributeError as e:
         return jsonify({'error': f'Query file not found: {str(e)}'}), 500
@@ -149,47 +164,6 @@ def most_recent_observation():
             'station_id': station_id,
             'service': service,
             'most_recent_observation': results[0]['most_recent_observation'] if results and results[0]['most_recent_observation'] else None
-        })
-    except AttributeError as e:
-        return jsonify({'error': f'Query file not found: {str(e)}'}), 500
-    except Exception as e:
-        return jsonify({'error': f'Database error: {str(e)}'}), 500
-
-
-@weather_bp.route('/observations/temperatures/max')
-def max_temperature_observations():
-    """
-    Get all maximum temperature observations for a station.
-
-    Query Parameters:
-        station_id (required): Station ID (e.g., 'KMIA')
-        service (optional): Data service (default: 'CLI')
-
-    Returns:
-        JSON response with all max temperature observations ordered by timestamp DESC
-    """
-    station_id = request.args.get('station_id')
-    service = request.args.get('service', 'CLI')
-
-    if not station_id:
-        return jsonify({'error': 'Missing required parameter: station_id'}), 400
-
-    try:
-        db = Database()
-        results = db.get_max_temperature_observations(station_id, service)
-
-        # Convert date and timestamp objects to strings for JSON serialization
-        for result in results:
-            if 'timestamp' in result and result['timestamp']:
-                result['timestamp'] = result['timestamp'].isoformat()
-            if 'date' in result and result['date']:
-                result['date'] = result['date'].isoformat()
-
-        return jsonify({
-            'station_id': station_id,
-            'service': service,
-            'count': len(results),
-            'observations': results
         })
     except AttributeError as e:
         return jsonify({'error': f'Query file not found: {str(e)}'}), 500
